@@ -30,9 +30,10 @@ if(!$con) {
                 <option value="0">-- Select TimeFrame--</option>
                 <option value="1">Last 1 Hour</option>
                 <option value="2">Last 2 Hour</option>
-                <option value="3">Last 4 Hour</option>
+                <option value="3">This Day</option>
                 <option value="4">This Week</option>
-                <option value="5">This Month</option>
+                <option value="5">Last 14 Days</option>
+                <option value="6">This Month</option>
                 
             </select>
             <input type="submit" name="submit" value="Get Data" />
@@ -93,12 +94,37 @@ if(!$con) {
                             } else {
                                 switch($_POST['filterChoice']) {
                                     case "1":
+                                        //Last 1 hour
+                                        $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 1 HOUR)";
+                                        getData($sql1);
+                                        break;
+                                    case "2":
+                                        //Last 2 hours
+                                        $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 2 HOUR)";
+                                        getData($sql1);
+                                        break;
+                                    case "3":
+                                        //Last 1 day
+                                        $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 1 DAY)";
+                                        getData($sql1);
+                                        break;
+                                    case "4":
                                         //Last 7 days
-                                        $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 15 DAY)";
+                                        $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 1 WEEK)";
+                                        getData($sql1);
+                                        break;
+                                    case "5":
+                                        //Last 14 days
+                                        $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 2 WEEK)";
+                                        getData($sql1);
+                                        break;
+                                    case "6":
+                                        //Last 30 days
+                                        $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 1 MONTH)";
                                         getData($sql1);
                                         break;
                                     default:
-                                        // Show last 7 days data
+                                        // Show last 1 hour data
                                         $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 1 HOUR)";
                                         getData($sql1);
                                 }
@@ -187,7 +213,7 @@ if(!$con) {
 
         <div class="main-video">
             <div class="video">
-                <video src="<?php echo 'uploads/' .$firstRow['name']; ?>" controls muted autoplay></video>
+                <video src="<?php echo 'uploads/' .$firstRow['name']; ?>" controls muted></video><!-- autoplay -->
                 <h3 class="title"><?php echo $firstRow['name']; ?></h3>
             </div>
         </div>
