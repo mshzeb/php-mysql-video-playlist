@@ -115,3 +115,17 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+select {
+    width: auto !important;
+    margin: auto;
+    text-align: center;
+}
+
+/* select{
+	width: 190px;
+	padding:5px;
+    border-radius: 3px;
+    
+    font-size: 14px;
+} */

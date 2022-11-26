@@ -11,15 +11,25 @@ require('./dbconfig.php');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Responsive Video Playlist</title>
 
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous" />
+    
     <!-- Custom CSS File -->
     <link rel="stylesheet" href="css/style.css" />
+    
     <script src="js/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
 </head>
 <body>
     <h3 class="heading">Video Playlist Web App</h3>
-    <div style="text-align: center;">
+
+
+    <div class="container">
+
+        <div class="form-inline text-center">
         <form method="POST">
-            <select name="filterUser">
+            <select name="filterUser" class="form-control">
                     <option value="0">-- Select User--</option>
                     <?php
                         $getUserQuery = "SELECT user_name FROM tbl_video";
@@ -31,7 +41,7 @@ require('./dbconfig.php');
                     <?php } ?>
             </select>
             
-            <select name="filterChoice" id="selDuration">
+            <select name="filterChoice" class="form-control" id="selDuration">
                 <option value="0">-- Select TimeFrame--</option>
                 <option value="1">Last 1 Hour</option>
                 <option value="2">Last 2 Hour</option>
@@ -41,11 +51,11 @@ require('./dbconfig.php');
                 <option value="6">This Month</option>
                 
             </select>
-            <input type="submit" name="submit" value="Get Data" />
+            <input type="submit" name="submit" class="btn btn-primary" value="Get Data" />
         </form>
     </div>
 
-    <div class="container">
+
         <div class="video-list" style="text-align: center;" id="mVidList">
            
         <!-- (B) VIDEO GALLERY -->
