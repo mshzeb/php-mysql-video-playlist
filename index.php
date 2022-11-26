@@ -21,6 +21,14 @@ require('./dbconfig.php');
         <form method="POST">
             <select name="filterUser">
                     <option value="0">-- Select User--</option>
+                    <?php
+                        $getUserQuery = "SELECT user_name FROM tbl_video";
+                        $getUserResult = mysqli_query($con, $getUserQuery) or die('Error: Error getting user.');
+
+                        while($row2 = mysqli_fetch_array($getUserResult)) {
+                    ?>
+                        <option value="<?php echo $row2['user_name']; ?>"><?php echo $row2['user_name']; ?></option>
+                    <?php } ?>
             </select>
             
             <select name="filterChoice" id="selDuration">
@@ -86,10 +94,9 @@ require('./dbconfig.php');
                         //getData($query);
                         //echo "<script>alert('No Data Selected')</script>";
                         $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(CURDATE(), INTERVAL 1 HOUR)";
-                        $getUserQuery = "SELECT user_name FROM tbl_video";
 
                         getData($sql1);
-                        getUser($getUserQuery);
+                        //getUser($getUserQuery);
                     } else {
                         switch($_POST['filterChoice']) {
                             case "1":
@@ -127,6 +134,7 @@ require('./dbconfig.php');
                                 $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 1 HOUR)";
                                 getData($sql1);
                         }
+
                     }
                 ?>
 <?php
