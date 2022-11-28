@@ -2,323 +2,109 @@
 
 require('./dbconfig.php');
 
+// If Login button is pressed
+if(isset($_POST['submit'])) {
+
+    $un = $_POST['un'];
+    $password = $_POST['password'];
+
+    $errors = array();
+
+    // Code to Check Username
+    //$unQuery = "SELECT * FROM tbl_admin WHERE name='$un'";
+    //$unQ = mysqli_query($con, $unQuery);
+
+    // If username is empty
+    if(empty($un)) {
+        $errors['u'] = "Username is Required.";
+    }
+
+    if(empty($password)) {
+        $errors['p'] = "Password is Required."; 
+    }
+
+    if(count($errors) == 0) {
+        $query = "SELECT * FROM tbl_admin WHERE name='$un' AND pass='$password'";
+        $result = mysqli_query($con, $query);
+
+        if(mysqli_num_rows($result) === 1) {
+            $row = mysqli_fetch_assoc($result);
+            if($row['name'] == $un && $row['pass'] == $password) {
+                header("Location: dashboard.php?Username password matched"); // redirect to the dashboard page if UN and PASS successfull
+                //exit();
+            } else {
+                header("Location: index.php"); //Stay on the same page
+                //exit();
+            }
+        } else {
+            header("Location: index.php?error=Username does not exist in db");
+            //exit();
+        }
+    } else {
+        header("Location: index.php?error=username and password empty");
+        //exit();   
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Video Playlist</title>
+<html>
+ <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE-Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PHP Login Page</title>
+  <link href='http://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css' />
+  <!-- Bootstrap -->
+  <link href="./css/bootstrap.min.css" rel="stylesheet" />
+  <link href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <link href="./css/login.css" rel="stylesheet" />
 
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous" />
-    
-    <!-- Custom CSS File -->
-    <link rel="stylesheet" href="css/style.css" />
-    
-    <script src="js/jquery.min.js"></script>
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
-</head>
-<body>
-    <h3 class="heading">Video Playlist Web App</h3>
+  <link href="./css/bootstrap.min.css" rel="stylesheet" />
+  <script src="./js/jquery.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="./js/bootstrap.min.js"></script>  
+ </head>
+ 
+ <body>
+	<div class="container">
+		<div class="login-form">
+			<?php // require_once 'templates/message.php'; ?>
+			<h1 class="text-center">Login to View Videos</h1>
+			<div class="form-header">
+				<i class="fa fa-user"></i>
+			</div>
+			
+			<!-- <form id="login-form" method="post" class="form-signin" role="form" action="<?php // echo $_SERVER['PHP_SELF']; ?>"> -->
+			<form method="POST" class="form-signin form-horizontal" role="form"> <!-- old value: action="video_list.php"  // dashboard.php -->
+				
+				<h3 class="well well-sm text-center">Login To Your Account</h3>
+                <div>Username: admin <br /> password: admin</div>
+				<div class="form-group">
+					<label class="control-label col-sm-2">Username:</label>
+					<div class="col-sm-10">
+						<input name="un" id="username" type="text" class="form-control" placeholder="Username" autofocus />
+                        <p class="text-danger"><?php if(isset($errors['u'])) echo $errors['u']; ?></p>
+					</div>
+				</div>
+				 
+				<div class="form-group">
+					<label class="control-label col-sm-2">Password:</label>
+					<div class="col-sm-10">
+						<input name="password" id="password" type="password" class="form-control" placeholder="Password" />
+						<p class="text-danger"><?php if(isset($errors['p'])) echo $errors['p']; ?></p>
+					</div>
+				</div>
 
-
-    <div class="container">
-
-        <div class="form-inline text-center">
-        <form method="POST">
-            <select name="filterUser" class="form-control">
-                    <option value="0">-- Select User--</option>
-                    <?php
-                        $getUserQuery = "SELECT user_name FROM tbl_video";
-                        $getUserResult = mysqli_query($con, $getUserQuery) or die('Error: Error getting user.');
-
-                        while($row2 = mysqli_fetch_array($getUserResult)) {
-                    ?>
-                        <option value="<?php echo $row2['user_name']; ?>"><?php echo $row2['user_name']; ?></option>
-                    <?php } ?>
-            </select>
-            
-            <select name="filterChoice" class="form-control" id="selDuration">
-                <option value="0">-- Select TimeFrame--</option>
-                <option value="1">Last 1 Hour</option>
-                <option value="2">Last 2 Hour</option>
-                <option value="3">This Day</option>
-                <option value="4">This Week</option>
-                <option value="5">Last 14 Days</option>
-                <option value="6">This Month</option>
-                
-            </select>
-            <input type="submit" name="submit" class="btn btn-primary" value="Get Data" />
-        </form>
-    </div>
-
-
-        <div class="video-list" style="text-align: center;" id="mVidList">
-           
-        <!-- (B) VIDEO GALLERY -->
-        <!-- <div class="gallery"> -->
-            <?php
-
-                $getAllVids_query = "SELECT * FROM tbl_video";
-                //$query = mysqli_query($con, $getAllVids_query);
-                global $query, $sql1;
-                $query = mysqli_query($con, $getAllVids_query);
-                
-                // (B1) GET VIDEO FILES FROM GALLERY FOLDER
-                //$dir = __DIR__ . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR;
-                //$vid = glob("$dir*.{webm,mp4,ogg}", GLOB_BRACE);
-
-                // (B2) OUTPUT VIDEOS
-            // if (count($vid) > 0) { ?>
-
-                    
-                    <?php
-
-                    //Get the first video from the database.
-                    //$row1 = mysqli_fetch_assoc($query);
-                    //$firstRow = $row1;
-                    //echo $firstRow['name'];
-
-                        // Seek to First row in the database before looping through the video files
-                    //mysqli_data_seek($query, 0);
-
-                    // Important Query
-                    // SELECT * FROM `tbl_video` WHERE `date_created` < date_sub(now(), INTERVAL 1 HOUR)
-                    // SELECT * FROM `tbl_video` WHERE `date_created` > now() - INTERVAL 1 HOUR;
-                    // SELECT * FROM `tbl_video` WHERE `date_created` > DATE_SUB(NOW(), INTERVAL 12 HOUR) ORDER BY DAY(`date_created`);
-                    // Src: https://www.w3schools.com/sql/func_mysql_date_sub.asp 
-
-// *******************************************************
-
-// The most important link
-// Developing the functionality of filter record based on dates using PHP Part 5
-// By How to Make Tut's <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// Src: https://www.youtube.com/watch?v=65dZ_rlLk1c
-
-                    if(!isset($_POST['filterChoice'])) {
-                        //$mainQuery = "SELECT * FROM tbl_video";
-                        //getData($mainQuery);
-                        //getData($query);
-                        //echo "<script>alert('No Data Selected')</script>";
-                        $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(CURDATE(), INTERVAL 1 HOUR)";
-
-                        getData($sql1);
-                        //getUser($getUserQuery);
-                    } else {
-                        switch($_POST['filterChoice']) {
-                            case "1":
-                                //Last 1 hour
-                                $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 1 HOUR)";
-                                getData($sql1);
-                                break;
-                            case "2":
-                                //Last 2 hours
-                                $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 2 HOUR)";
-                                getData($sql1);
-                                break;
-                            case "3":
-                                //Last 1 day
-                                $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 1 DAY)";
-                                getData($sql1);
-                                break;
-                            case "4":
-                                //Last 7 days
-                                $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 1 WEEK)";
-                                getData($sql1);
-                                break;
-                            case "5":
-                                //Last 14 days
-                                $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 2 WEEK)";
-                                getData($sql1);
-                                break;
-                            case "6":
-                                //Last 30 days
-                                $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 1 MONTH)";
-                                getData($sql1);
-                                break;
-                            default:
-                                // Show last 1 hour data
-                                $sql1 = "SELECT * FROM tbl_video WHERE date_created > DATE_SUB(NOW(), INTERVAL 1 HOUR)";
-                                getData($sql1);
-                        }
-
-                    }
-                ?>
-<?php
-// *******************************************************
-
-            function getData($sql) {
-                // // Create Connection
-                // $con = mysqli_connect("localhost", "root", "", "dbnskhost");
-
-                // // Check connection
-                // if(!$con) {
-                //     die("Connection Failed" . mysqli_connect_error());
-                // }
-                // //echo "Connected Successfully";
-
-                require('./dbconfig.php');
-
-                //$sql = "";
-                //echo "SQL: "+$sql;
-                $data = mysqli_query($con, $sql) or die('error');
-                if(mysqli_num_rows($data) > 0) {
-                                    
-
-// *******************************************************
-                //while($row = mysqli_fetch_array($query)) {
-                while($row = mysqli_fetch_array($data)) {
-                    $vidName = basename($row['name']);
-                    $caption = substr($vidName, 0, strrpos($vidName, "."));
-                    //echo $caption;
-                    //echo "<script>alert('vid name'".$row[0]['name'].")</script>";
-                ?>
-
-                    <!-- Load videos based on query on line 84 on page load -->
-                    <div class="vid" id="vidlist"> 
-                        <!-- <div> <?php //echo 'User: '.$row["user_name"]; ?> </div> -->
-                        <video src="<?php echo 'uploads/'.$row["name"]; ?>"></video>
-                        <div class="title"><?php echo $caption; ?></div>
-                    </div>
-
-        <?php  } ?>
-
-            <?php 
-            } else echo "<script>alert('No Rows Found')</script>";
-            
-        } ?>
-        </div>
-                    <?php
-                        /*} else {
-                            echo "No Video Files Found.";
-                        }*/
-                    ?>
-
-
-        <!-- </div> -->
-        <!-- (B) VIDEO GALLERY ENDS -->
-
-
-        <!--
-        <div class="video-list">
-            <div class="vid active">
-                <video src="uploads/vid1.mp4" muted></video>
-                <h3 class="title">1 Video Title Goes Here</h3>
-            </div>
-            <div class="vid">
-                <video src="uploads/vid2.mp4" muted></video>
-                <h3 class="title">2 Video Title Goes Here</h3>
-            </div>
-            <div class="vid">
-                <video src="uploads/vid3.mp4" muted></video>
-                <h3 class="title">3 Video Title Goes Here</h3>
-            </div>
-            <div class="vid">
-                <video src="uploads/vid4.mp4" muted></video>
-                <h3 class="title">4 Video Title Goes Here</h3>
-            </div>
-        </div>
-        -->
-
-        <?php
-
-            $getAllVids_query1 = "SELECT * FROM tbl_video";
-            $query1 = mysqli_query($con, $getAllVids_query1);
-
-            $row1 = mysqli_fetch_assoc($query1);
-            $firstRow = $row1;
-            //echo $firstRow['name'];
-        ?>
-
-        <div class="main-video">
-            <div class="video">
-                <video src="<?php echo 'uploads/' .$firstRow['name']; ?>" controls muted></video><!-- autoplay -->
-                <h3 class="title"><?php echo $firstRow['name']; ?></h3>
-            </div>
-        </div>
-
-        
-    </div>
-
-<script>
-
-    $(document).ready(function(){
-
-        // $(".vid").click(function() {
-        //     //$(this).addClass("active");
-        //     $(this).classList.add("active");
-
-        //     $(".vid").not(this).removeClass("active");
-        // });
-
-        $(document).on("click","div.video-list .vid",function(){
-            $(this).addClass('active');
-            $("div.video-list .vid").not(this).removeClass("active");
-        });
-
-        // let listVideo = document.querySelectorAll('.video-list .vid');
-        // //let listVideo = document.querySelectorAll('.container .video-list .vid');
-        // let mainVideo = document.querySelector('.main-video video');
-        // let title = document.querySelector('.main-video .title');
-
-        // //console.log(listVideo);
-
-        // listVideo.forEach(video => {
-        //     video.onclick = () => {
-        //         listVideo.forEach(vid => vid.classList.remove('active'));
-        //         video.classList.add('active');
-        //         if(video.classList.contains('active')) {
-        //             let src = video.children[0].getAttribute('src');
-        //             mainVideo.src = src;
-        //             let text = video.children[1].innerHTML;
-        //             title.innerHTML = text;
-        //         };
-        //     };
-        // });
-
-        // // Get all video elements
-        // var container = document.getElementById("mVidList");
-        // //console.log(container);
-
-        // // Get all video inside video-list class
-        // var vid = container.getElementsByClassName("vid");
-
-        // // Loop through the vid elements and add the active class to the current/clicked vid element
-        // for(var i = 0; i < vid.length; i++) {
-        //     vid[i].addEventListener("click", function(){
-        //         var current = document.getElementsByClassName("active");
-
-        //         current[0].className = current[0].className.replace(" active", "");
-        //         this.className += " active";
-
-        //         // If there is no active class
-        //         // if(current.length > 0) {
-        //         //     current[0].className = current[0].className.replace(" active", "");
-        //         // }
-
-        //         // Add the active class to the current/clicked button
-        //         //this.className += " active";
-        //     });
-        // }
-        
-            // $.ajax({
-            //     url: "fetch.php",
-            //     beforeSend: function() {
-            //         $(".video-list").html("<span>Working...</span>");
-            //     },
-            //     success: function(data) {
-            //         $(".video-list").html(data);
-            //     }
-            //     // success: function(data) {
-            //     //     console.log(data);
-            //     // }
-            // });
-        });
-
-</script>
-</body>
+				
+				<div class="text-xs-center">
+				<!-- <button id="btnSubmit" name="submit" class="btn btn-block bt-login" type="submit" >Sign in</button> --> <!-- onClick="validate()" -->
+				<input type="submit" id="btnSubmit" name="submit" class="btn btn-block bt-login" value="Log In" />
+				
+			</form>
+		</div>
+	</div>
+	<!-- /container -->
+ </body>
 </html>
-
